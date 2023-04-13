@@ -1,23 +1,31 @@
 <script setup lang="ts">
   import { useSudokuGridStore } from '@/stores/grid'
+  import Grid from "../components/game/Grid.vue"
 
   const gridStore = useSudokuGridStore()
-  gridStore.initGrid()
-  console.log(gridStore.grid);
+  if (!gridStore.initialized) {
+    gridStore.initGrid();
+  }
+
+
 </script>
 
 <template>
-  <div class="about">
-    <h1>Good luck</h1>
+  <div class="board">
+    <h1>Have fun</h1>
+    <Grid />
   </div>
+
 </template>
 
 <style>
 @media (min-width: 1024px) {
-  .about {
+  .board {
     min-height: 100vh;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
   }
 }
 </style>

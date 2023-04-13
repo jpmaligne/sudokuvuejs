@@ -34,6 +34,9 @@
   --color-text: var(--vt-c-text-light-1);
 
   --section-gap: 160px;
+
+  --color-green: hsla(160, 100%, 37%, 1);
+  --color-green-dark: hsla(160, 100%, 37%, 0.2);
 }
 
 @media (prefers-color-scheme: dark) {
