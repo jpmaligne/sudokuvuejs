@@ -8,7 +8,7 @@
   <div class="grid">
     <div v-for="col in gridStore.grid" class="col">
         <div v-for="cell in col" class="cell">
-            <span>{{ cell }}</span>
+            <span>{{ cell.value }}</span>
         </div>
     </div>
   </div>
