@@ -1,16 +1,51 @@
+<script setup lang="ts">
+  import { useSudokuGridStore } from '@/stores/grid'
+
+  const gridStore = useSudokuGridStore()
+</script>
+
 <template>
-    <div class="about">
-      <h1>Good luck</h1>
+  <div class="grid">
+    <div v-for="col in gridStore.grid" class="col">
+        <div v-for="cell in col" class="cell">
+            <span>{{ cell }}</span>
+        </div>
     </div>
-  </template>
-  
-  <style>
-  @media (min-width: 1024px) {
-    .about {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-    }
+  </div>
+</template>
+
+<style scoped>
+  .grid {
+    display: flex;
   }
-  </style>
-  
+
+  .grid > .col:first-child {
+    border-left: 2px solid var(--color-green);
+  }
+
+  .col:nth-child(3n){
+    border-right: 2px solid var(--color-green);
+  }
+
+  .col > .cell:first-child {
+    border-top: 2px solid var(--color-green);
+  }
+
+  .col > .cell:nth-child(3n){
+    border-bottom: 2px solid var(--color-green);
+  }
+
+  .cell {
+    border: 1px solid var(--color-green);
+    height: 4rem;
+    width: 4rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cell:hover {
+    cursor: pointer;
+    background-color: var(--color-green-dark);
+  }
+</style>
