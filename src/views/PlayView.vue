@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { useSudokuGridStore } from '@/stores/grid'
+  import { useSudokuGridStore } from '@/stores/grid.store'
   import Grid from "../components/game/Grid.vue"
 
   const gridStore = useSudokuGridStore()
