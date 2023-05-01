@@ -13,13 +13,13 @@ const MATRIX_LENGTH = 8;
 
 interface IGridState {
   grid: Grid,
-  initialized: boolean
+  initialized: boolean,
 }
 
 export const useSudokuGridStore = defineStore("grid", {
   state: (): IGridState => ({
     grid: new(Array<Array<GridCell>>),
-    initialized: false
+    initialized: false,
   }),
   actions: {
 
@@ -35,7 +35,7 @@ export const useSudokuGridStore = defineStore("grid", {
           inputValue: undefined,
           hidden: false
         }
-  
+
         this.grid[colIndex][j] = newCell;
       }
     },
