@@ -1,7 +1,9 @@
 <script setup lang="ts">
   import { useGameStore } from '@/stores/game.store'
+  import { useSudokuGridStore } from '@/stores/grid.store'
 
   const gameStore = useGameStore()
+  const gridStore = useSudokuGridStore()
 </script>
 
 <template>
@@ -9,7 +11,7 @@
     <div
         v-for="difficulty in gameStore.availableDifficulties"
         class="difficulty"
-        v-on:click="gameStore.setGameDifficulty(difficulty)"
+        v-on:click="gameStore.setGameDifficulty(difficulty).then(() => gridStore.hideCellsBasedOnDifficulty(difficulty))"
     >
         <span>{{ difficulty }}</span>
     </div>

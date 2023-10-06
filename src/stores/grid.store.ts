@@ -1,4 +1,7 @@
 import { defineStore } from "pinia";
+import { useGameStore } from '@/stores/game.store'
+
+const gameStore = useGameStore()
 
 // The Sudoku grid
 type GridCell = {
@@ -160,6 +163,23 @@ export const useSudokuGridStore = defineStore("grid", {
         }
       }
       return ok;
+    },
+
+    hideCellsBasedOnDifficulty(difficulty: number): void {
+      const nbCellsHidden = gameStore.hiddenCellsByDifficulty.get(difficulty)
+
+      let i = 0
+      while (i < nbCellsHidden!) {
+        const x = Math.floor(Math.random() * 9);
+        const y = Math.floor(Math.random() * 9);
+        if (this.grid[x][y].hidden == true) {
+          continue
+        }
+        this.grid[x][y].hidden = true
+        this.grid[x][y].inputValue = undefined
+
+        i++
+      }
     }
   }
 });

@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 
 interface IGameState {
   availableDifficulties: number[],
+  hiddenCellsByDifficulty: Map<number, number>
   difficulty: number,
   playTime: number,
   intervalID: number,
@@ -11,12 +12,13 @@ interface IGameState {
 export const useGameStore = defineStore("game", {
   state: (): IGameState => ({
     availableDifficulties: [1, 2, 3],
+    hiddenCellsByDifficulty: new Map<number, number>([[1, 20], [2, 40], [3, 60]]),
     difficulty: 0,
     playTime: 0,
     intervalID: 0,
   }),
   actions: {
-    setGameDifficulty(difficulty: number) {
+    async setGameDifficulty(difficulty: number) {
         this.difficulty = difficulty;
         this.startGame();
     },

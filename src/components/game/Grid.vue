@@ -1,14 +1,38 @@
 <script setup lang="ts">
+  import { ref } from 'vue';
   import { useSudokuGridStore } from '@/stores/grid.store'
+  import ValuePicker from "./ValuePicker.vue"
 
   const gridStore = useSudokuGridStore()
+  const valuePickerIndexes = ref({
+    valuePickerColIndex: -1,
+    valuePickerRowIndex: -1
+})
+
+  // Functions
+  function setValuePickerToShow(colIndex: number, rowIndex: number) {
+    valuePickerIndexes.value.valuePickerColIndex = colIndex
+    valuePickerIndexes.value.valuePickerRowIndex = rowIndex
+  }
 </script>
 
 <template>
   <div class="grid">
-    <div v-for="col in gridStore.grid" class="col">
-        <div v-for="cell in col" class="cell">
-            <span>{{ cell.value }}</span>
+    <div v-for="col, colIndex in gridStore.grid" class="col">
+        <div
+          v-for="cell, rowIndex in col"
+          class="cell"
+          v-bind:class='cell.hidden ? "cell_hidden" : ""'
+          v-on:mousedown="setValuePickerToShow(colIndex, rowIndex)"
+          v-on:mouseup="setValuePickerToShow(-1, -1)"
+        >
+            <span>{{ cell.inputValue }}</span>
+            <ValuePicker
+              v-if="
+                valuePickerIndexes.valuePickerColIndex === colIndex
+                && valuePickerIndexes.valuePickerRowIndex === rowIndex
+              "
+            />
         </div>
     </div>
   </div>
@@ -36,6 +60,8 @@
   }
 
   .cell {
+    font-weight: 500;
+    font-size: 2rem;
     border: 1px solid var(--color-green);
     height: 4rem;
     width: 4rem;
@@ -44,8 +70,17 @@
     align-items: center;
   }
 
-  .cell:hover {
-    cursor: pointer;
-    background-color: var(--color-green-dark);
+  .cell_hidden {
+
+    &:hover {
+      cursor: pointer;
+      background-color: var(--color-green-dark);
+    }
+
+    &>span {
+      color: blue;
+    }
   }
+
+
 </style>
