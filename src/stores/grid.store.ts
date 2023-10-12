@@ -1,14 +1,10 @@
 import { defineStore } from "pinia";
 import { useGameStore } from '@/stores/game.store'
+import type { GridCell } from "@/interfaces/GridCell";
 
 const gameStore = useGameStore()
 
 // The Sudoku grid
-type GridCell = {
-  value: number | undefined;  // Real value
-  hidden: boolean;  // Depend on the difficulty level
-  inputValue: number | undefined;  // Value given by the player, can be different from the real value
-}
 type GridRow = GridCell[]
 type Grid = GridRow[]
 
@@ -36,7 +32,10 @@ export const useSudokuGridStore = defineStore("grid", {
         const newCell: GridCell = {
           value: undefined,
           inputValue: undefined,
-          hidden: false
+          hidden: false,
+          rowIndex: -1,
+          colIndex: -1,
+          isConflicting: false,
         }
 
         this.grid[colIndex][j] = newCell;
@@ -92,47 +91,49 @@ export const useSudokuGridStore = defineStore("grid", {
       this.shuffleArray(possibleValues)
 
       for (const value of possibleValues) {
-        const colOk = this.checkCol(value, colIndex, rowIndex)
-        if (!colOk) {
+        const conflictOnColumn = this.checkCol(value, colIndex, rowIndex)
+        if (conflictOnColumn) {
           continue;
         }
 
-        const rowOk = this.checkRow(value, colIndex, rowIndex)
-        if (!rowOk) {
+        const conflictOnRow = this.checkRow(value, colIndex, rowIndex)
+        if (conflictOnRow) {
           continue;
         }
 
-        const groupOk = this.checkGroup(value, colIndex, rowIndex)
-        if (!groupOk) {
+        const conflictOnGroup = this.checkGroup(value, colIndex, rowIndex)
+        if (conflictOnGroup) {
           continue;
         }
 
         this.grid[colIndex][rowIndex].value = value;
         this.grid[colIndex][rowIndex].inputValue = value;
+        this.grid[colIndex][rowIndex].colIndex = colIndex;
+        this.grid[colIndex][rowIndex].rowIndex = rowIndex;
         return true;
       }
       return false;
     },
 
-    checkCol(input: number, colIndex: number, rowIndex: number): boolean {
-      let ok = true;
+    checkCol(input: number, colIndex: number, rowIndex: number, setConflict: boolean = false): GridCell | undefined {
       const colToVerify = this.grid[colIndex]
-      const cellExistsWithThatValue = colToVerify.find((cell) => cell.inputValue === input)
-      if (cellExistsWithThatValue) {
-        ok = false;
+      const conflictingCellOnCol = colToVerify.find((cell) => cell.inputValue === input)
+      if (setConflict && conflictingCellOnCol) {
+        conflictingCellOnCol.isConflicting = true
       }
-      return ok;
+
+      return conflictingCellOnCol
     },
 
-    checkRow(input: number, colIndex: number, rowIndex: number): boolean {
-      let ok = true;
+    checkRow(input: number, colIndex: number, rowIndex: number, setConflict: boolean = false): GridCell | undefined {
       const row = this.grid.map((col) => col[rowIndex])
 
-      const cellExistsWithThatValue = row.find((cell) => cell.inputValue === input)
-      if (cellExistsWithThatValue) {
-        ok = false
+      const conflictingCellOnRow = row.find((cell) => cell.inputValue === input)
+      if (setConflict && conflictingCellOnRow) {
+        conflictingCellOnRow.isConflicting = true
       }
-      return ok
+
+      return conflictingCellOnRow
     },
 
     getIndexesToCheck(index: number): number[] {
@@ -147,8 +148,8 @@ export const useSudokuGridStore = defineStore("grid", {
       return [index - 2, index - 1, index]
     },
 
-    checkGroup(input: number, colIndex: number, rowIndex: number): boolean {
-      let ok = true;
+    checkGroup(input: number, colIndex: number, rowIndex: number, setConflict: boolean = false): GridCell | undefined {
+      let conflictingCell = undefined;
       const colIndexesToCheck = this.getIndexesToCheck(colIndex);
       const rowIndexesToCheck = this.getIndexesToCheck(rowIndex);
       for (const i of colIndexesToCheck) {
@@ -157,12 +158,16 @@ export const useSudokuGridStore = defineStore("grid", {
             continue;  // Go to next iteration
           }
           if (this.grid[i][j].inputValue == input) {
-            ok = false;
+            conflictingCell = this.grid[i][j];
             break;
           }
         }
       }
-      return ok;
+      if (setConflict && conflictingCell) {
+        conflictingCell.isConflicting = true
+      }
+
+      return conflictingCell;
     },
 
     hideCellsBasedOnDifficulty(difficulty: number): void {
@@ -180,6 +185,14 @@ export const useSudokuGridStore = defineStore("grid", {
 
         i++
       }
-    }
+    },
+
+    setCellInputValue(colIndex: number, rowIndex: number, value: number): void {
+      this.grid[colIndex][rowIndex].inputValue = value;
+    },
+
+    resetCellInputValue(colIndex: number, rowIndex: number): void {
+      this.grid[colIndex][rowIndex].inputValue = undefined;
+    },
   }
 });

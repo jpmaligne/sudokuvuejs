@@ -2,6 +2,7 @@
   import { ref } from 'vue';
   import { useSudokuGridStore } from '@/stores/grid.store'
   import ValuePicker from "./ValuePicker.vue"
+  import type { GridCell } from '@/interfaces/GridCell';
 
   const gridStore = useSudokuGridStore()
   const valuePickerIndexes = ref({
@@ -14,6 +15,22 @@
     valuePickerIndexes.value.valuePickerColIndex = colIndex
     valuePickerIndexes.value.valuePickerRowIndex = rowIndex
   }
+
+  function handleMouseDown(e: MouseEvent, cell: GridCell) {
+    if (e.button === 2) {
+      cell.hidden ? gridStore.resetCellInputValue(cell.colIndex, cell.rowIndex): undefined
+      return
+    }
+    return cell.hidden ? setValuePickerToShow(cell.colIndex, cell.rowIndex): undefined
+  }
+
+  function handleValuePicked(colIndex: number, rowIndex: number, value: number) {
+    gridStore.setCellInputValue(colIndex, rowIndex, value)
+    gridStore.checkCol(value, colIndex, rowIndex, true)
+    gridStore.checkRow(value, colIndex, rowIndex, true)
+    gridStore.checkGroup(value, colIndex, rowIndex, true)
+  }
+
 </script>
 
 <template>
@@ -22,9 +39,10 @@
         <div
           v-for="cell, rowIndex in col"
           class="cell"
-          v-bind:class='cell.hidden ? "cell_hidden" : ""'
-          v-on:mousedown="setValuePickerToShow(colIndex, rowIndex)"
-          v-on:mouseup="setValuePickerToShow(-1, -1)"
+          :class='{"cell_hidden": cell.hidden, "cell_conflicting": cell.isConflicting}'
+          v-on:mousedown="(e) => handleMouseDown(e, cell)"
+          v-on:mouseup="cell.hidden ? setValuePickerToShow(-1, -1): undefined"
+          v-on:contextmenu="(e) => { e.preventDefault(); return false }"
         >
             <span>{{ cell.inputValue }}</span>
             <ValuePicker
@@ -32,6 +50,8 @@
                 valuePickerIndexes.valuePickerColIndex === colIndex
                 && valuePickerIndexes.valuePickerRowIndex === rowIndex
               "
+              :onValuePicked=handleValuePicked
+              :currentCell="cell"
             />
         </div>
     </div>
@@ -41,6 +61,9 @@
 <style scoped>
   .grid {
     display: flex;
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
   }
 
   .grid > .col:first-child {
@@ -80,6 +103,10 @@
     &>span {
       color: blue;
     }
+  }
+
+  .cell_conflicting {
+    color: red;
   }
 
 
